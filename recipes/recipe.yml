@@ -9,9 +9,6 @@ modules:
     packages:
       - cockpit
       - cockpit-*
-      - podman
-      - podman-compose
-      - buildah
       - toolbox
 
   - type: rpm-ostree
@@ -19,13 +16,11 @@ modules:
       - moby-engine
       - docker-compose-plugin
       - tailscale
+      - wireguard-tools
       - tmux
 
   - type: systemd
     enabled:
       - docker.service
       - tailscaled.service
-
-  - type: systemd
-    disabled:
       - zincati.service
