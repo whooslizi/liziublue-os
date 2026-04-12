@@ -29,11 +29,11 @@ jobs:
           - recipe.yml
 
     steps:
-      - name: Build Custom Image
-        uses: blue-build/github-action@v1.11
-        with:
-          recipe: ${{ matrix.recipe }}
-          registry_token: ${{ github.token }}
-          pr_event_number: ${{ github.event.number }}
-          disable_signing: true
-          maximize_build_space: true
+    - name: Build Custom Image
+      uses: blue-build/github-action@v1.11
+      with:
+        recipe: ${{ matrix.recipe }}
+        registry_token: ${{ github.token }}
+        pr_event_number: ${{ github.event.number }}
+        maximize_build_space: true
+        cosign_private_key: ""
