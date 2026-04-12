@@ -1,16 +1,10 @@
-name: ublue-os-slimmer
-description: Lizi's UBlue OS
+name: coreos-docker-tailscale
+description: Lizi CoreOS with Docker + Tailscale
 
-base-image: ghcr.io/ublue-os/ucore-minimal
+base-image: quay.io/fedora/fedora-coreos:stable
 image-version: latest
 
 modules:
-  - type: remove
-    packages:
-      - cockpit
-      - cockpit-*
-      - toolbox
-
   - type: rpm-ostree
     install:
       - moby-engine
@@ -18,9 +12,20 @@ modules:
       - tailscale
       - wireguard-tools
       - tmux
+      - fastfetch
 
   - type: systemd
     enabled:
       - docker.service
+      - docker.socket
       - tailscaled.service
       - zincati.service
+
+  - type: files
+    files:
+      - path: /etc/modules-load.d/network.conf
+        contents: |
+          ip_tables
+          iptable_filter
+          nf_conntrack
+          tun
