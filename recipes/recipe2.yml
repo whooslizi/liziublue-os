@@ -1,0 +1,56 @@
+name: lizi-desktop
+description: Lizi's UBlueOS (for my Linux PC)
+
+base-image: quay.io/fedora/fedora-silverblue
+image-version: 40
+
+modules:
+  - type: script
+    snippets:
+      - |
+        RELEASEVER=$(grep '^VERSION_ID=' /etc/os-release | cut -d'=' -f2)
+        curl -Lo /etc/yum.repos.d/fcitx5-lotus.repo https://fcitx5-lotus.pages.dev/rpm/fedora/fcitx5-lotus-$RELEASEVER.repo
+        rpm --import https://fcitx5-lotus.pages.dev/pubkey.gpg
+
+  - type: rpm-ostree
+    install:
+      - moby-engine
+      - docker-compose
+      - tailscale
+      - fastfetch
+      - distrobox
+      - fcitx5-lotus
+    remove:
+      - ibus
+      - ibus-m17n
+      - ibus-typing-booster
+
+  - type: systemd
+    system:
+      enabled:
+        - docker.service
+        - tailscaled.service
+
+  - type: script
+    snippets:
+      - |
+        cat <<EOF > /etc/profile.d/fcitx5-env.sh
+        export XMODIFIERS=@im=fcitx
+        export QT_IM_MODULE=fcitx
+        export QT_IM_MODULES="wayland;fcitx"
+        export GLFW_IM_MODULE=ibus
+        EOF
+        
+        mkdir -p /etc/xdg/autostart
+        cp /usr/share/applications/org.fcitx.Fcitx5.desktop /etc/xdg/autostart/ || true
+
+  - type: default-flatpaks
+    system:
+      repo-url: https://dl.flathub.org/repo/flathub.flatpakrepo
+      repo-name: flathub
+      repo-title: Flathub
+      install:
+        - com.spotify.Client
+        - org.mozilla.firefox
+        - org.godotengine.Godot
+        - com.vscodium.codium
