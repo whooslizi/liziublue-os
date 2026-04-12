@@ -1,0 +1,11 @@
+FROM quay.io/fedora/fedora-coreos:stable
+
+RUN rpm-ostree install \
+    docker \
+    docker-compose \
+    tailscale \
+    && rpm-ostree cleanup -m
+
+# Enable services
+RUN systemctl enable docker.service
+RUN systemctl enable tailscaled.service
