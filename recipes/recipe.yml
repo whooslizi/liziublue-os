@@ -15,10 +15,11 @@ modules:
       - fastfetch
 
   - type: systemd
-    enable:
-      - docker.service
-      - tailscaled.service
-      - zincati.service
+    system:
+      enabled:
+        - docker.service
+        - tailscaled.service
+        - zincati.service
 
   - type: script
     scripts:
