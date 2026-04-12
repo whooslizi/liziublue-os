@@ -6,10 +6,10 @@ image-version: 40
 
 modules:
   - type: script
-    snippets:
-      - |
-        curl -A "Mozilla/5.0" -Lo /etc/yum.repos.d/fcitx5-lotus.repo https://fcitx5-lotus.pages.dev/rpm/fedora/fcitx5-lotus-40.repo
-        rpm --import https://fcitx5-lotus.pages.dev/pubkey.gpg
+      snippets:
+        - |
+          curl -fA "Mozilla/5.0" -Lo /etc/yum.repos.d/fcitx5-lotus.repo https://fcitx5-lotus.pages.dev/rpm/fedora/fcitx5-lotus-40.repo || curl -fA "Mozilla/5.0" -Lo /etc/yum.repos.d/fcitx5-lotus.repo https://fcitx5-lotus.pages.dev/rpm/fedora/fcitx5-lotus.repo
+          rpm --import https://fcitx5-lotus.pages.dev/pubkey.gpg
 
   - type: rpm-ostree
     install:
