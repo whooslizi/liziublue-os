@@ -8,8 +8,7 @@ modules:
   - type: script
       snippets:
         - |
-          source /etc/os-release
-          curl -Lo /etc/yum.repos.d/fcitx5-lotus.repo https://fcitx5-lotus.pages.dev/rpm/fedora/fcitx5-lotus-${VERSION_ID}.repo
+          curl -A "Mozilla/5.0" -Lo /etc/yum.repos.d/fcitx5-lotus.repo https://fcitx5-lotus.pages.dev/rpm/fedora/fcitx5-lotus-40.repo
           rpm --import https://fcitx5-lotus.pages.dev/pubkey.gpg
 
   - type: rpm-ostree
