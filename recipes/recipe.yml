@@ -1,5 +1,5 @@
-name: coreos-docker-tailscale
-description: Lizi CoreOS with Docker + Tailscale
+name: liziulone-os
+description: Lizi CoreOS (bare minium for my server)
 
 base-image: quay.io/fedora/fedora-coreos:stable
 image-version: latest
