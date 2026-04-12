@@ -1,5 +1,5 @@
-name: lizi-coreos
-description: Lizi CoreOS (bare minimum supplies for my server)
+name: lizi-coreos-server
+description: Lizi ServerOS (bare minimum supplies for my server)
 
 base-image: quay.io/fedora/fedora-coreos
 image-version: stable
@@ -10,8 +10,6 @@ modules:
       - moby-engine
       - docker-compose
       - tailscale
-      - wireguard-tools
-      - tmux
       - fastfetch
 
   - type: systemd
@@ -21,8 +19,8 @@ modules:
         - tailscaled.service
         - zincati.service
 
-  - type: script
-    scripts:
-      - |
-        ln -sf /usr/share/zoneinfo/Asia/Bangkok /etc/localtime
-        echo "Asia/Bangkok" > /etc/timezone
+    - type: script
+        snippets:
+          - |
+            ln -sf /usr/share/zoneinfo/Asia/Bangkok /etc/localtime
+            echo "Asia/Bangkok" > /etc/timezone  
