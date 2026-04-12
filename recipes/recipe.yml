@@ -8,7 +8,7 @@ modules:
   - type: rpm-ostree
     install:
       - moby-engine
-      - docker-compose-plugin
+      - docker-compose
       - tailscale
       - wireguard-tools
       - tmux
