@@ -19,8 +19,8 @@ modules:
         - tailscaled.service
         - zincati.service
 
-    - type: script
-        snippets:
-          - |
-            ln -sf /usr/share/zoneinfo/Asia/Bangkok /etc/localtime
-            echo "Asia/Bangkok" > /etc/timezone  
+  - type: script
+    snippets:
+      - |
+        ln -sf /usr/share/zoneinfo/Asia/Bangkok /etc/localtime
+        echo "Asia/Bangkok" > /etc/timezone
