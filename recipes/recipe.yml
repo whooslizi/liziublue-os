@@ -1,8 +1,8 @@
-name: liziulone-os
-description: Lizi CoreOS (bare minium for my server)
+name: lizi-coreos
+description: Lizi CoreOS (bare minimum supplies for my server)
 
-base-image: quay.io/fedora/fedora-coreos:stable
-image-version: latest
+base-image: quay.io/fedora/fedora-coreos
+image-version: stable
 
 modules:
   - type: rpm-ostree
@@ -17,15 +17,11 @@ modules:
   - type: systemd
     enabled:
       - docker.service
-      - docker.socket
       - tailscaled.service
       - zincati.service
 
-  - type: files
-    files:
-      - path: /etc/modules-load.d/network.conf
-        contents: |
-          ip_tables
-          iptable_filter
-          nf_conntrack
-          tun
+  - type: script
+    scripts:
+      - |
+        ln -sf /usr/share/zoneinfo/Asia/Bangkok /etc/localtime
+        echo "Asia/Bangkok" > /etc/timezone
