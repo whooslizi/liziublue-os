@@ -5,12 +5,6 @@ base-image: quay.io/fedora/fedora-silverblue
 image-version: 40
 
 modules:
-  - type: script
-    snippets:
-      - |
-        curl -fA "Mozilla/5.0" -Lo /etc/yum.repos.d/fcitx5-lotus.repo https://fcitx5-lotus.pages.dev/rpm/fedora/fcitx5-lotus-40.repo || curl -fA "Mozilla/5.0" -Lo /etc/yum.repos.d/fcitx5-lotus.repo https://fcitx5-lotus.pages.dev/rpm/fedora/fcitx5-lotus.repo
-        rpm --import https://fcitx5-lotus.pages.dev/pubkey.gpg
-
   - type: rpm-ostree
     install:
       - moby-engine
@@ -18,7 +12,6 @@ modules:
       - tailscale
       - fastfetch
       - distrobox
-      - fcitx5-lotus
     remove:
       - ibus
       - ibus-m17n
@@ -51,3 +44,5 @@ modules:
       install:
         - com.spotify.Client
         - org.mozilla.firefox
+        - org.godotengine.Godot
+        - com.vscodium.codium
