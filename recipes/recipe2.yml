@@ -12,6 +12,13 @@ modules:
       - tailscale
       - fastfetch
       - distrobox
+      - policycoreutils
+      - policycoreutils-python-utils
+      - git
+      - vim
+      - htop
+      - btop
+      - localsend
 
   - type: systemd
     system:
@@ -26,9 +33,9 @@ modules:
         export XMODIFIERS=@im=fcitx
         export QT_IM_MODULE=fcitx
         export QT_IM_MODULES="wayland;fcitx"
-        export GLFW_IM_MODULE=ibus
+        export GLFW_IM_MODULE=fcitx
         EOF
-        
+
         mkdir -p /etc/xdg/autostart
         cp /usr/share/applications/org.fcitx.Fcitx5.desktop /etc/xdg/autostart/ || true
 
@@ -41,3 +48,4 @@ modules:
           title: Flathub
         install:
           - com.spotify.Client
+          - org.localsend.localsend_app
