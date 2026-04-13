@@ -32,10 +32,9 @@ modules:
         mkdir -p /etc/xdg/autostart
         cp /usr/share/applications/org.fcitx.Fcitx5.desktop /etc/xdg/autostart/ || true
 
-  - type: default-flatpaks
-    system:
-      repo-url: https://dl.flathub.org/repo/flathub.flatpakrepo
-      repo-name: flathub
-      repo-title: Flathub
-      install:
-        - com.spotify.Client
+    - type: default-flatpaks
+        repo-url: https://dl.flathub.org/repo/flathub.flatpakrepo
+        repo-name: flathub
+        repo-title: Flathub
+        install:
+          - com.spotify.Client
