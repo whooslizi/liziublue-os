@@ -18,8 +18,7 @@ modules:
       - vim
       - htop
       - btop
-      - localsend
-
+      
   - type: systemd
     system:
       enabled:
