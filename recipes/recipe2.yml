@@ -12,10 +12,6 @@ modules:
       - tailscale
       - fastfetch
       - distrobox
-    remove:
-      - ibus
-      - ibus-m17n
-      - ibus-typing-booster
 
   - type: systemd
     system:
@@ -43,6 +39,3 @@ modules:
       repo-title: Flathub
       install:
         - com.spotify.Client
-        - org.mozilla.firefox
-        - org.godotengine.Godot
-        - com.vscodium.codium
