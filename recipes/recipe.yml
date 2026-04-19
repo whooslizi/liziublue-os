@@ -1,10 +1,14 @@
 name: lizi-coreos-server
-description: Lizi ServerOS (bare minimum supplies for my server)
+description: Lizi ServerOS (Optimized for Auto-Updates)
 
 base-image: quay.io/fedora/fedora-coreos
 image-version: stable
 
 modules:
+  - type: repos
+    yum:
+      - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+
   - type: rpm-ostree
     install:
       - moby-engine
