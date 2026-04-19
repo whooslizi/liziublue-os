@@ -1,5 +1,5 @@
 name: lizi-coreos-server
-description: Lizi ServerOS (Monday 3 AM Maintenance Window)
+description: Lizi ServerOS (Minimal setup for my server)
 
 base-image: quay.io/fedora/fedora-coreos
 image-version: stable
