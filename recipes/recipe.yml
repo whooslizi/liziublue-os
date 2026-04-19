@@ -1,13 +1,14 @@
 name: lizi-coreos-server
-description: Lizi ServerOS (Optimized for Auto-Updates)
+description: Lizi ServerOS (Optimized for Weekly Monday Updates)
 
 base-image: quay.io/fedora/fedora-coreos
 image-version: stable
 
 modules:
-  - type: repos
-    yum:
-      - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+  - type: script
+    snippets:
+      - |
+        curl -Lo /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo
 
   - type: rpm-ostree
     install:
@@ -15,6 +16,18 @@ modules:
       - docker-compose
       - tailscale
       - fastfetch
+
+  - type: files
+    files:
+      - destination: /etc/zincati/config.d/50-maintenance-window.toml
+        contents: |
+          [updates]
+          strategy = "periodic"
+
+          [[updates.periodic.window]]
+          days = [ "Mon" ]
+          start_time = "03:00"
+          length_minutes = 60
 
   - type: systemd
     system:
