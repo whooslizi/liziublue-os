@@ -18,25 +18,16 @@ modules:
       - vim
       - htop
       - btop
+      - plymouth
+      - plymouth-system-theme-spinner
+      - fish
+      - starship
       
   - type: systemd
     system:
       enabled:
         - docker.service
         - tailscaled.service
-
-  - type: script
-    snippets:
-      - |
-        cat <<EOF > /etc/profile.d/fcitx5-env.sh
-        export XMODIFIERS=@im=fcitx
-        export QT_IM_MODULE=fcitx
-        export QT_IM_MODULES="wayland;fcitx"
-        export GLFW_IM_MODULE=fcitx
-        EOF
-
-        mkdir -p /etc/xdg/autostart
-        cp /usr/share/applications/org.fcitx.Fcitx5.desktop /etc/xdg/autostart/ || true
 
   - type: default-flatpaks
     configurations:
@@ -46,5 +37,4 @@ modules:
           name: flathub
           title: Flathub
         install:
-          - com.spotify.Client
           - org.localsend.localsend_app
