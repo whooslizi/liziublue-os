@@ -14,7 +14,7 @@ modules:
           https://pkgs.tailscale.com/stable/fedora/tailscale.repo \
           -o /etc/yum.repos.d/tailscale.repo
 
-        ln -snf /usr/share/zoneinfo/Asia/Bangkok /etc/localtime
+        ln -snf /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime
         echo "Asia/Ho_Chi_Minh" >/etc/timezone
 
         mkdir -p /etc/zincati/config.d
@@ -36,69 +36,68 @@ modules:
       - tailscale
       - fastfetch
 
-  - type: files
-    files:
-      - path: /usr/local/bin/lizi-bootc-update
-        mode: 0755
-        contents: |
-          #!/usr/bin/env bash
-          set -euo pipefail
+  - type: script
+    snippets:
+      - |
+        install -Dm755 /dev/stdin /usr/local/bin/lizi-bootc-update <<'EOF'
+        #!/usr/bin/env bash
+        set -euo pipefail
 
-          /usr/bin/bootc upgrade || true
-          /usr/bin/rpm-ostree cleanup -m || true
-          /usr/bin/rpm-ostree cleanup -p || true
+        bootc upgrade || true
+        rpm-ostree cleanup -m || true
+        rpm-ostree cleanup -p || true
+        EOF
 
-      - path: /usr/local/bin/lizi-reboot-if-staged
-        mode: 0755
-        contents: |
-          #!/usr/bin/env bash
-          set -euo pipefail
+        install -Dm755 /dev/stdin /usr/local/bin/lizi-reboot-if-staged <<'EOF'
+        #!/usr/bin/env bash
+        set -euo pipefail
 
-          if /usr/bin/bootc status | grep -q "Staged: yes"; then
-              /usr/bin/systemctl reboot
-          fi
+        if bootc status | grep -q "Staged: yes"; then
+            systemctl reboot
+        fi
+        EOF
 
-      - path: /etc/systemd/system/lizi-bootc-update.service
-        contents: |
-          [Unit]
-          Description=Weekly Bootc Upgrade
+        install -Dm644 /dev/stdin /etc/systemd/system/lizi-bootc-update.service <<'EOF'
+        [Unit]
+        Description=Weekly Bootc Upgrade
 
-          [Service]
-          Type=oneshot
-          ExecStart=/usr/local/bin/lizi-bootc-update
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/local/bin/lizi-bootc-update
+        EOF
 
-      - path: /etc/systemd/system/lizi-bootc-update.timer
-        contents: |
-          [Unit]
-          Description=Weekly Bootc Upgrade
+        install -Dm644 /dev/stdin /etc/systemd/system/lizi-bootc-update.timer <<'EOF'
+        [Unit]
+        Description=Weekly Bootc Upgrade
 
-          [Timer]
-          OnCalendar=Mon 02:45
-          Persistent=true
+        [Timer]
+        OnCalendar=Mon 02:45
+        Persistent=true
 
-          [Install]
-          WantedBy=timers.target
+        [Install]
+        WantedBy=timers.target
+        EOF
 
-      - path: /etc/systemd/system/lizi-reboot.service
-        contents: |
-          [Unit]
-          Description=Reboot if Bootc Update Was Staged
+        install -Dm644 /dev/stdin /etc/systemd/system/lizi-reboot.service <<'EOF'
+        [Unit]
+        Description=Reboot if staged
 
-          [Service]
-          Type=oneshot
-          ExecStart=/usr/local/bin/lizi-reboot-if-staged
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/local/bin/lizi-reboot-if-staged
+        EOF
 
-      - path: /etc/systemd/system/lizi-reboot.timer
-        contents: |
-          [Unit]
-          Description=Weekly Reboot
+        install -Dm644 /dev/stdin /etc/systemd/system/lizi-reboot.timer <<'EOF'
+        [Unit]
+        Description=Weekly Reboot
 
-          [Timer]
-          OnCalendar=Mon 03:00
-          Persistent=true
+        [Timer]
+        OnCalendar=Mon 03:00
+        Persistent=true
 
-          [Install]
-          WantedBy=timers.target
+        [Install]
+        WantedBy=timers.target
+        EOF
 
   - type: systemd
     system:
