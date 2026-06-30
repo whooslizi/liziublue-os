@@ -1,27 +1,16 @@
 name: lizi-coreos-server
-description: Lizi ServerOS (Minimal setup for my server)
+description: Lizi CoreOS Server
 
 base-image: quay.io/fedora/fedora-coreos
-image-version: stable
+image-version: 44
 
 modules:
   - type: script
     snippets:
       - |
-        curl -Lo /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo
-        
-        # Setup Zincati Maintenance
-        # This replaces the buggy 'files' module
-        mkdir -p /etc/zincati/config.d
-        cat > /etc/zincati/config.d/50-maintenance-window.toml <<EOF
-        [updates]
-        strategy = "periodic"
-
-        [[updates.periodic.window]]
-        days = [ "Mon" ]
-        start_time = "03:00"
-        length_minutes = 60
-        EOF
+        curl -fsSL \
+          https://pkgs.tailscale.com/stable/fedora/tailscale.repo \
+          -o /etc/yum.repos.d/tailscale.repo
 
   - type: rpm-ostree
     install:
@@ -40,6 +29,16 @@ modules:
   - type: script
     snippets:
       - |
-        # 3. Timezone setup
-        ln -sf /usr/share/zoneinfo/Asia/Bangkok /etc/localtime
-        echo "Asia/Bangkok" > /etc/timezone
+        timedatectl set-timezone Asia/Bangkok
+
+        mkdir -p /etc/zincati/config.d
+
+        cat >/etc/zincati/config.d/50-maintenance-window.toml <<'EOF'
+        [updates]
+        strategy = "periodic"
+
+        [[updates.periodic.window]]
+        days = ["Mon"]
+        start_time = "03:00"
+        length_minutes = 60
+        EOF
