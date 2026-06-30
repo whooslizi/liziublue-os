@@ -8,27 +8,12 @@ modules:
   - type: script
     snippets:
       - |
+        set -eux
+
         curl -fsSL \
           https://pkgs.tailscale.com/stable/fedora/tailscale.repo \
           -o /etc/yum.repos.d/tailscale.repo
 
-  - type: rpm-ostree
-    install:
-      - moby-engine
-      - docker-compose
-      - tailscale
-      - fastfetch
-
-  - type: systemd
-    system:
-      enabled:
-        - docker.service
-        - tailscaled.service
-        - zincati.service
-
-  - type: script
-    snippets:
-      - |
         timedatectl set-timezone Asia/Bangkok
 
         mkdir -p /etc/zincati/config.d
@@ -42,3 +27,83 @@ modules:
         start_time = "03:00"
         length_minutes = 60
         EOF
+
+  - type: rpm-ostree
+    install:
+      - moby-engine
+      - docker-compose
+      - tailscale
+      - fastfetch
+
+  - type: files
+    files:
+      - path: /usr/local/bin/lizi-bootc-update
+        mode: 0755
+        contents: |
+          #!/usr/bin/env bash
+          set -euxo pipefail
+
+          bootc upgrade
+          rpm-ostree cleanup -m || true
+          rpm-ostree cleanup -p || true
+
+      - path: /usr/local/bin/lizi-scheduled-reboot
+        mode: 0755
+        contents: |
+          #!/usr/bin/env bash
+          set -euxo pipefail
+
+          if bootc status | grep -q "Staged: yes"; then
+            systemctl reboot
+          fi
+
+      - path: /etc/systemd/system/lizi-bootc-update.service
+        contents: |
+          [Unit]
+          Description=Weekly Bootc Upgrade
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/local/bin/lizi-bootc-update
+
+      - path: /etc/systemd/system/lizi-bootc-update.timer
+        contents: |
+          [Unit]
+          Description=Weekly Bootc Upgrade Timer
+
+          [Timer]
+          OnCalendar=Mon 02:45
+          Persistent=true
+
+          [Install]
+          WantedBy=timers.target
+
+      - path: /etc/systemd/system/lizi-reboot.service
+        contents: |
+          [Unit]
+          Description=Reboot if Bootc Update is Staged
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/local/bin/lizi-scheduled-reboot
+
+      - path: /etc/systemd/system/lizi-reboot.timer
+        contents: |
+          [Unit]
+          Description=Weekly Scheduled Reboot
+
+          [Timer]
+          OnCalendar=Mon 03:00
+          Persistent=true
+
+          [Install]
+          WantedBy=timers.target
+
+  - type: systemd
+    system:
+      enabled:
+        - docker.service
+        - tailscaled.service
+        - zincati.service
+        - lizi-bootc-update.timer
+        - lizi-reboot.timer
