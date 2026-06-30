@@ -14,7 +14,8 @@ modules:
           https://pkgs.tailscale.com/stable/fedora/tailscale.repo \
           -o /etc/yum.repos.d/tailscale.repo
 
-        timedatectl set-timezone Asia/Bangkok
+        ln -snf /usr/share/zoneinfo/Asia/Bangkok /etc/localtime
+        echo "Asia/Ho_Chi_Minh" >/etc/timezone
 
         mkdir -p /etc/zincati/config.d
 
@@ -41,20 +42,20 @@ modules:
         mode: 0755
         contents: |
           #!/usr/bin/env bash
-          set -euxo pipefail
+          set -euo pipefail
 
-          bootc upgrade
-          rpm-ostree cleanup -m || true
-          rpm-ostree cleanup -p || true
+          /usr/bin/bootc upgrade || true
+          /usr/bin/rpm-ostree cleanup -m || true
+          /usr/bin/rpm-ostree cleanup -p || true
 
-      - path: /usr/local/bin/lizi-scheduled-reboot
+      - path: /usr/local/bin/lizi-reboot-if-staged
         mode: 0755
         contents: |
           #!/usr/bin/env bash
-          set -euxo pipefail
+          set -euo pipefail
 
-          if bootc status | grep -q "Staged: yes"; then
-            systemctl reboot
+          if /usr/bin/bootc status | grep -q "Staged: yes"; then
+              /usr/bin/systemctl reboot
           fi
 
       - path: /etc/systemd/system/lizi-bootc-update.service
@@ -69,7 +70,7 @@ modules:
       - path: /etc/systemd/system/lizi-bootc-update.timer
         contents: |
           [Unit]
-          Description=Weekly Bootc Upgrade Timer
+          Description=Weekly Bootc Upgrade
 
           [Timer]
           OnCalendar=Mon 02:45
@@ -81,16 +82,16 @@ modules:
       - path: /etc/systemd/system/lizi-reboot.service
         contents: |
           [Unit]
-          Description=Reboot if Bootc Update is Staged
+          Description=Reboot if Bootc Update Was Staged
 
           [Service]
           Type=oneshot
-          ExecStart=/usr/local/bin/lizi-scheduled-reboot
+          ExecStart=/usr/local/bin/lizi-reboot-if-staged
 
       - path: /etc/systemd/system/lizi-reboot.timer
         contents: |
           [Unit]
-          Description=Weekly Scheduled Reboot
+          Description=Weekly Reboot
 
           [Timer]
           OnCalendar=Mon 03:00
