@@ -2,7 +2,7 @@ name: lizi-coreos-server
 description: Lizi CoreOS Server
 
 base-image: quay.io/fedora/fedora-coreos
-image-version: 44
+image-version: stable
 
 modules:
   - type: script
