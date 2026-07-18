@@ -29,6 +29,13 @@ jobs:
           - recipe.yml
 
     steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Clear BuildKit Cache
+        run: |
+          docker buildx prune -af
+
       - name: Build Custom Image
         uses: blue-build/github-action@v1.12
         with:
