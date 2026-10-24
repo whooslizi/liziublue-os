@@ -15,19 +15,6 @@ modules:
           -o /etc/yum.repos.d/tailscale.repo
 
         ln -snf /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime
-        echo "Asia/Ho_Chi_Minh" >/etc/timezone
-
-        mkdir -p /etc/zincati/config.d
-
-        cat >/etc/zincati/config.d/50-maintenance-window.toml <<'EOF'
-        [updates]
-        strategy = "periodic"
-
-        [[updates.periodic.window]]
-        days = ["Mon"]
-        start_time = "03:00"
-        length_minutes = 60
-        EOF
 
   - type: rpm-ostree
     install:
@@ -39,27 +26,34 @@ modules:
   - type: script
     snippets:
       - |
+        set -eux
+
         install -Dm755 /dev/stdin /usr/local/bin/lizi-bootc-update <<'EOF'
         #!/usr/bin/env bash
         set -euo pipefail
 
-        bootc upgrade || true
+        bootc upgrade
         rpm-ostree cleanup -m || true
-        rpm-ostree cleanup -p || true
         EOF
 
-        install -Dm755 /dev/stdin /usr/local/bin/lizi-reboot-if-staged <<'EOF'
+        install -Dm755 /dev/stdin /usr/local/bin/lizi-weekly-reboot <<'EOF'
         #!/usr/bin/env bash
         set -euo pipefail
 
-        if bootc status | grep -q "Staged: yes"; then
-            systemctl reboot
-        fi
+        # Wait (max 30 min) if the upgrade is still running
+        for _ in $(seq 1 180); do
+            systemctl is-active --quiet lizi-bootc-update.service || break
+            sleep 10
+        done
+
+        systemctl reboot
         EOF
 
         install -Dm644 /dev/stdin /etc/systemd/system/lizi-bootc-update.service <<'EOF'
         [Unit]
-        Description=Weekly Bootc Upgrade
+        Description=Weekly bootc upgrade
+        Wants=network-online.target
+        After=network-online.target
 
         [Service]
         Type=oneshot
@@ -68,10 +62,10 @@ modules:
 
         install -Dm644 /dev/stdin /etc/systemd/system/lizi-bootc-update.timer <<'EOF'
         [Unit]
-        Description=Weekly Bootc Upgrade
+        Description=Weekly bootc upgrade (Mon 02:50)
 
         [Timer]
-        OnCalendar=Mon 02:45
+        OnCalendar=Mon *-*-* 02:50:00 Asia/Ho_Chi_Minh
         Persistent=true
 
         [Install]
@@ -80,20 +74,20 @@ modules:
 
         install -Dm644 /dev/stdin /etc/systemd/system/lizi-reboot.service <<'EOF'
         [Unit]
-        Description=Reboot if staged
+        Description=Weekly reboot
 
         [Service]
         Type=oneshot
-        ExecStart=/usr/local/bin/lizi-reboot-if-staged
+        ExecStart=/usr/local/bin/lizi-weekly-reboot
         EOF
 
         install -Dm644 /dev/stdin /etc/systemd/system/lizi-reboot.timer <<'EOF'
         [Unit]
-        Description=Weekly Reboot
+        Description=Weekly reboot (Mon 03:00)
 
         [Timer]
-        OnCalendar=Mon 03:00
-        Persistent=true
+        OnCalendar=Mon *-*-* 03:00:00 Asia/Ho_Chi_Minh
+        Persistent=false
 
         [Install]
         WantedBy=timers.target
@@ -104,6 +98,7 @@ modules:
       enabled:
         - docker.service
         - tailscaled.service
-        - zincati.service
         - lizi-bootc-update.timer
         - lizi-reboot.timer
+      disabled:
+        - zincati.service
