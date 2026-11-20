@@ -1,8 +1,8 @@
 name: lizi-coreos-server
 description: Lizi CoreOS Server
 
-base-image: quay.io/fedora/fedora-bootc
-image-version: latest
+base-image: quay.io/fedora/fedora-coreos
+image-version: stable
 
 modules:
   - type: script
@@ -16,8 +16,10 @@ modules:
 
         ln -snf /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime
 
-        dnf install -y moby-engine docker-compose tailscale fastfetch
-        dnf clean all
+        export container=podman
+        touch /run/.containerenv
+        rpm-ostree install moby-engine docker-compose tailscale fastfetch
+        rm -f /run/.containerenv
 
   - type: script
     snippets:
@@ -29,6 +31,7 @@ modules:
         set -euo pipefail
 
         bootc upgrade
+        rpm-ostree cleanup -m || true
         EOF
 
         install -Dm755 /dev/stdin /usr/local/bin/lizi-weekly-reboot <<'EOF'
@@ -95,3 +98,5 @@ modules:
         - tailscaled.service
         - lizi-bootc-update.timer
         - lizi-reboot.timer
+      disabled:
+        - zincati.service
