@@ -16,12 +16,10 @@ modules:
 
         ln -snf /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime
 
-  - type: rpm-ostree
-    install:
-      - moby-engine
-      - docker-compose
-      - tailscale
-      - fastfetch
+        # rpm-ostree refuses to run in a container build without this marker
+        touch /run/ostree-booted
+        rpm-ostree install moby-engine docker-compose tailscale fastfetch
+        rm -f /run/ostree-booted
 
   - type: script
     snippets:
