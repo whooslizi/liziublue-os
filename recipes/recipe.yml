@@ -10,16 +10,16 @@ modules:
       - |
         set -eux
 
+        # Configure timezone
+        ln -snf /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime
+
+        # Add Tailscale repo and install packages
         curl -fsSL \
           https://pkgs.tailscale.com/stable/fedora/tailscale.repo \
           -o /etc/yum.repos.d/tailscale.repo
 
-        ln -snf /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime
-
-        export container=podman
-        touch /run/.containerenv
-        rpm-ostree install moby-engine docker-compose tailscale fastfetch
-        rm -f /run/.containerenv
+        dnf install -y moby-engine docker-compose tailscale fastfetch
+        dnf clean all
 
   - type: script
     snippets:
@@ -31,7 +31,6 @@ modules:
         set -euo pipefail
 
         bootc upgrade
-        rpm-ostree cleanup -m || true
         EOF
 
         install -Dm755 /dev/stdin /usr/local/bin/lizi-weekly-reboot <<'EOF'
@@ -63,7 +62,7 @@ modules:
         Description=Weekly bootc upgrade (Mon 02:50)
 
         [Timer]
-        OnCalendar=Mon *-*-* 02:50:00 Asia/Ho_Chi_Minh
+        OnCalendar=Mon *-*-* 02:50:00
         Persistent=true
 
         [Install]
@@ -84,7 +83,7 @@ modules:
         Description=Weekly reboot (Mon 03:00)
 
         [Timer]
-        OnCalendar=Mon *-*-* 03:00:00 Asia/Ho_Chi_Minh
+        OnCalendar=Mon *-*-* 03:00:00
         Persistent=false
 
         [Install]
